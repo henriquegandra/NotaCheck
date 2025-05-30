@@ -1,0 +1,19 @@
+{
+  "name": "NotaCheck",
+  "version": "1.0.0",
+  "description": "Automação de recebimento de produtos e serviços",
+  "type": "module",
+  "main": "main.js",
+  "repository": "https://github.com/henriquegandra/NotaCheck.git",
+  "author": "Henrique Gandra <henriquegandra@live.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.1.0",
+    "multer": "^2.0.0"
+  }
+}

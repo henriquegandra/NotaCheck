@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>NotaCheck - Upload</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f3f4f6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px;
+            min-height: 100vh;
+        }
+        .container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 1200px;
+            padding: 30px 40px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #111827;
+            text-align: center;
+        }
+        .drag-row {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .drop-area {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 2px dashed #9ca3af;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            color: #6b7280;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s;
+            background: #f9fafb;
+            margin-bottom: 0;
+            position: relative;
+            min-width: 0;
+        }
+        .drop-area.highlight {
+            background-color: #e5e7eb;
+            border-color: #4b5563;
+        }
+        .file-info {
+            margin-top: 10px;
+            font-weight: 500;
+            color: #10b981;
+        }
+        .clear-btn {
+            margin-top: 8px;
+            background: #f87171;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 14px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .clear-btn:hover {
+            background: #dc2626;
+        }
+        input[type="file"] { display: none; }
+        .main-flex {
+            display: flex;
+            gap: 32px;
+        }
+        .form-area {
+            flex: 1 1 0;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+        .tab-content-flex {
+            display: flex;
+            gap: 32px;
+        }
+        .tab-content {
+            flex: 1 1 200px;
+            border: 1px solid #e5e7eb;
+            border-radius: 0 0 10px 10px;
+            padding: 20px 16px 10px 16px;
+            background: #fff;
+            margin-bottom: 0;
+            margin-top: -1px;
+            display: none;
+            animation: fadeIn 0.2s;
+        }
+        .tab-content.active { display: block; }
+        .pdf-preview-area {
+            flex: 1 1 600px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .pdf-preview-wrapper {
+            width: 100%;
+            background: #f9fafb;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            margin-bottom: 16px;
+            display: none;
+            flex-direction: column;
+        }
+        .pdf-preview-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: #e5e7eb;
+            border-radius: 10px 10px 0 0;
+        }
+        .pdf-preview-header span {
+            font-weight: 500;
+            color: #374151;
+        }
+        .pdf-preview-toggle {
+            background: none;
+            border: none;
+            color: #2563eb;
+            font-size: 15px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .pdf-preview-iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+            border-radius: 0 0 10px 10px;
+            background: #fff;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 0;
+            border-bottom: 1px solid #e5e7eb;
+            gap: 2px;
+        }
+        .tab {
+            padding: 10px 24px;
+            cursor: pointer;
+            border: 1px solid #e5e7eb;
+            border-bottom: none;
+            background: #f3f4f6;
+            color: #374151;
+            border-radius: 10px 10px 0 0;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .tab.active {
+            background: #fff;
+            color: #2563eb;
+            border-bottom: 2px solid #fff;
+            font-weight: 700;
+        }
+        button[type="submit"] {
+            margin: 32px auto 0 auto;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            width: 100%;
+            max-width: 500px;
+            display: block;
+        }
+        button[type="submit"]:hover {
+            background-color: #1d4ed8;
+        }
+        label {
+            display: block;
+            width: 100%;
+            margin-bottom: 12px;
+            color: #374151;
+            font-size: 15px;
+        }
+        input[type="date"], input[type="text"], select {
+            padding: 6px 10px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 15px;
+            background: #f9fafb;
+            color: #374151;
+            outline: none;
+            margin-bottom: 8px;
+            width: 100%;
+            min-width: 180px;
+        }
+        input[type="date"]:focus, input[type="text"]:focus, select:focus {
+            border-color: #2563eb;
+            background: #fff;
+        }
+        @media (max-width: 900px) {
+            .main-flex { flex-direction: column; gap: 0; }
+            .pdf-preview-area, .form-area { max-width: 100%; }
+            .drag-row { flex-direction: column; gap: 0; }
+            .tab-content-flex { flex-direction: column; gap: 0; }
+        }
+        @media (max-width: 600px) {
+            .container { padding: 8px 2px; }
+            .tab { padding: 8px 8px; font-size: 14px; }
+            .tab-content { padding: 10px 4px 6px 4px; }
+            .pdf-preview-iframe { height: 250px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NotaCheck - Upload</h1>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <div class="drag-row">
+                <div class="drop-area" id="dropNota">
+                    <label for="notaInput">Arraste aqui o PDF da Nota<br>
+                        <span style="font-size:13px;color:#9ca3af;">ou clique para selecionar</span>
+                    </label>
+                    <input type="file" name="nota" accept="application/pdf" id="notaInput">
+                    <div class="file-info" id="notaFileInfo"></div>
+                    <button type="button" class="clear-btn" id="clearNotaBtn" style="display:none;">Limpar Nota</button>
+                </div>
+                <div class="drop-area" id="dropBoleto">
+                    <label for="boletoInput">Arraste aqui o PDF do Boleto<br>
+                        <span style="font-size:13px;color:#9ca3af;">ou clique para selecionar</span>
+                    </label>
+                    <input type="file" name="boleto" accept="application/pdf" id="boletoInput">
+                    <div class="file-info" id="boletoFileInfo"></div>
+                    <button type="button" class="clear-btn" id="clearBoletoBtn" style="display:none;">Limpar Boleto</button>
+                </div>
+            </div>
+            <div class="main-flex">
+                <div class="form-area">
+                    <div class="tabs" id="tabs" style="display:none;">
+                        <div class="tab" id="tab-nota">Nota</div>
+                        <div class="tab" id="tab-boleto">Boleto</div>
+                    </div>
+                    <div class="tab-content-flex">
+                        <div class="tab-content" id="content-nota">
+                            <label>Data Vencimento: <input type="date" name="nota-vencimento"></label>
+                            <label>Data Recebimento: <input type="date" name="nota-recebimento"></label>
+                            <label>Tipo de Nota:
+                                <select name="nota-tipo">
+                                    <option value="NFE">NFE</option>
+                                    <option value="DANFE">DANFE</option>
+                                    <option value="NFS">NFS</option>
+                                </select>
+                            </label>
+                            <label>Nº Nota: <input type="text" name="nota-numero"></label>
+                            <label>Fornecedor: <input type="text" name="nota-fornecedor"></label>
+                            <label>Nº Pedido (opcional): <input type="text" name="nota-pedido"></label>
+                        </div>
+                        <div class="pdf-preview-area" id="pdfNotaArea">
+                            <div class="pdf-preview-wrapper" id="pdfNotaWrapper">
+                                <div class="pdf-preview-header">
+                                    <span>Nota PDF</span>
+                                    <button type="button" class="pdf-preview-toggle" id="toggleNotaPdf">Esconder</button>
+                                </div>
+                                <iframe class="pdf-preview-iframe" id="notaPdfFrame"></iframe>
+                                <div style="display:flex;gap:8px;justify-content:center;padding:8px;">
+                                    <button type="button" id="zoomOutNota" style="font-size:18px;">-</button>
+                                    <button type="button" id="zoomInNota" style="font-size:18px;">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-content-flex">
+                        <div class="tab-content" id="content-boleto">
+                            <label>Data Vencimento: <input type="date" name="boleto-vencimento"></label>
+                            <label>Data Recebimento: <input type="date" name="boleto-recebimento"></label>
+                            <label>Nº Boleto: <input type="text" name="boleto-numero"></label>
+                            <label>Fornecedor: <input type="text" name="boleto-fornecedor"></label>
+                            <label>Nº Pedido (opcional): <input type="text" name="boleto-pedido"></label>
+                        </div>
+                        <div class="pdf-preview-area" id="pdfBoletoArea">
+                            <div class="pdf-preview-wrapper" id="pdfBoletoWrapper">
+                                <div class="pdf-preview-header">
+                                    <span>Boleto PDF</span>
+                                    <button type="button" class="pdf-preview-toggle" id="toggleBoletoPdf">Esconder</button>
+                                </div>
+                                <iframe class="pdf-preview-iframe" id="boletoPdfFrame"></iframe>
+                                <div style="display:flex;gap:8px;justify-content:center;padding:8px;">
+                                    <button type="button" id="zoomOutBoleto" style="font-size:18px;">-</button>
+                                    <button type="button" id="zoomInBoleto" style="font-size:18px;">+</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="submitBtn" disabled>Enviar</button>
+                </div>
+            </div>
+        </form>
+    </div>
+    <script>
+        // Drag and drop para Nota
+        const dropNota = document.getElementById('dropNota');
+        const notaInput = document.getElementById('notaInput');
+        const notaFileInfo = document.getElementById('notaFileInfo');
+        const clearNotaBtn = document.getElementById('clearNotaBtn');
+        const pdfNotaWrapper = document.getElementById('pdfNotaWrapper');
+        const notaPdfFrame = document.getElementById('notaPdfFrame');
+        const toggleNotaPdf = document.getElementById('toggleNotaPdf');
+        const zoomInNota = document.getElementById('zoomInNota');
+        const zoomOutNota = document.getElementById('zoomOutNota');
+        let notaZoom = 1;
+
+        dropNota.addEventListener('click', () => notaInput.click());
+        dropNota.addEventListener('dragover', e => { e.preventDefault(); dropNota.classList.add('highlight'); });
+        dropNota.addEventListener('dragleave', e => { e.preventDefault(); dropNota.classList.remove('highlight'); });
+        dropNota.addEventListener('drop', e => {
+            e.preventDefault();
+            dropNota.classList.remove('highlight');
+            if (e.dataTransfer.files.length) {
+                notaInput.files = e.dataTransfer.files;
+                notaInput.dispatchEvent(new Event('change'));
+            }
+        });
+
+        notaInput.addEventListener('change', () => {
+            if (notaInput.files.length) {
+                notaFileInfo.textContent = notaInput.files[0].name;
+                clearNotaBtn.style.display = '';
+                showPdfPreview(notaInput.files[0], notaPdfFrame, pdfNotaWrapper, 'nota');
+            } else {
+                notaFileInfo.textContent = '';
+                clearNotaBtn.style.display = 'none';
+                hidePdfPreview(pdfNotaWrapper, notaPdfFrame, 'nota');
+            }
+            updateTabs();
+            validateForm();
+        });
+
+        clearNotaBtn.addEventListener('click', () => {
+            notaInput.value = '';
+            notaFileInfo.textContent = '';
+            clearNotaBtn.style.display = 'none';
+            hidePdfPreview(pdfNotaWrapper, notaPdfFrame, 'nota');
+            updateTabs();
+            validateForm();
+        });
+
+        toggleNotaPdf.addEventListener('click', () => {
+            if (notaPdfFrame.style.display === 'none') {
+                notaPdfFrame.style.display = '';
+                toggleNotaPdf.textContent = 'Esconder';
+            } else {
+                notaPdfFrame.style.display = 'none';
+                toggleNotaPdf.textContent = 'Mostrar';
+            }
+        });
+
+        zoomInNota.addEventListener('click', () => {
+            notaZoom = Math.min(notaZoom + 0.1, 2);
+            notaPdfFrame.style.transform = `scale(${notaZoom})`;
+            notaPdfFrame.style.transformOrigin = 'top left';
+        });
+        zoomOutNota.addEventListener('click', () => {
+            notaZoom = Math.max(notaZoom - 0.1, 0.5);
+            notaPdfFrame.style.transform = `scale(${notaZoom})`;
+            notaPdfFrame.style.transformOrigin = 'top left';
+        });
+
+        // Drag and drop para Boleto
+        const dropBoleto = document.getElementById('dropBoleto');
+        const boletoInput = document.getElementById('boletoInput');
+        const boletoFileInfo = document.getElementById('boletoFileInfo');
+        const clearBoletoBtn = document.getElementById('clearBoletoBtn');
+        const pdfBoletoWrapper = document.getElementById('pdfBoletoWrapper');
+        const boletoPdfFrame = document.getElementById('boletoPdfFrame');
+        const toggleBoletoPdf = document.getElementById('toggleBoletoPdf');
+        const zoomInBoleto = document.getElementById('zoomInBoleto');
+        const zoomOutBoleto = document.getElementById('zoomOutBoleto');
+        let boletoZoom = 1;
+
+        dropBoleto.addEventListener('click', () => boletoInput.click());
+        dropBoleto.addEventListener('dragover', e => { e.preventDefault(); dropBoleto.classList.add('highlight'); });
+        dropBoleto.addEventListener('dragleave', e => { e.preventDefault(); dropBoleto.classList.remove('highlight'); });
+        dropBoleto.addEventListener('drop', e => {
+            e.preventDefault();
+            dropBoleto.classList.remove('highlight');
+            if (e.dataTransfer.files.length) {
+                boletoInput.files = e.dataTransfer.files;
+                boletoInput.dispatchEvent(new Event('change'));
+            }
+        });
+
+        boletoInput.addEventListener('change', () => {
+            if (boletoInput.files.length) {
+                boletoFileInfo.textContent = boletoInput.files[0].name;
+                clearBoletoBtn.style.display = '';
+                showPdfPreview(boletoInput.files[0], boletoPdfFrame, pdfBoletoWrapper, 'boleto');
+            } else {
+                boletoFileInfo.textContent = '';
+                clearBoletoBtn.style.display = 'none';
+                hidePdfPreview(pdfBoletoWrapper, boletoPdfFrame, 'boleto');
+            }
+            updateTabs();
+            validateForm();
+        });
+
+        clearBoletoBtn.addEventListener('click', () => {
+            boletoInput.value = '';
+            boletoFileInfo.textContent = '';
+            clearBoletoBtn.style.display = 'none';
+            hidePdfPreview(pdfBoletoWrapper, boletoPdfFrame, 'boleto');
+            updateTabs();
+            validateForm();
+        });
+
+        toggleBoletoPdf.addEventListener('click', () => {
+            if (boletoPdfFrame.style.display === 'none') {
+                boletoPdfFrame.style.display = '';
+                toggleBoletoPdf.textContent = 'Esconder';
+            } else {
+                boletoPdfFrame.style.display = 'none';
+                toggleBoletoPdf.textContent = 'Mostrar';
+            }
+        });
+
+        zoomInBoleto.addEventListener('click', () => {
+            boletoZoom = Math.min(boletoZoom + 0.1, 2);
+            boletoPdfFrame.style.transform = `scale(${boletoZoom})`;
+            boletoPdfFrame.style.transformOrigin = 'top left';
+        });
+        zoomOutBoleto.addEventListener('click', () => {
+            boletoZoom = Math.max(boletoZoom - 0.1, 0.5);
+            boletoPdfFrame.style.transform = `scale(${boletoZoom})`;
+            boletoPdfFrame.style.transformOrigin = 'top left';
+        });
+
+        // Funções PDF preview
+        function showPdfPreview(file, frame, wrapper, tipo) {
+            const url = URL.createObjectURL(file);
+            frame.src = url;
+            frame.style.display = '';
+            wrapper.style.display = 'flex';
+            wrapper.dataset.url = url;
+            if (tipo === 'nota') {
+                notaZoom = 1;
+                frame.style.transform = 'scale(1)';
+            } else {
+                boletoZoom = 1;
+                frame.style.transform = 'scale(1)';
+            }
+        }
+        function hidePdfPreview(wrapper, frame, tipo) {
+            if (wrapper.dataset.url) {
+                URL.revokeObjectURL(wrapper.dataset.url);
+                delete wrapper.dataset.url;
+            }
+            frame.src = '';
+            wrapper.style.display = 'none';
+            if (tipo === 'nota') {
+                notaZoom = 1;
+                frame.style.transform = 'scale(1)';
+            } else {
+                boletoZoom = 1;
+                frame.style.transform = 'scale(1)';
+            }
+        }
+
+        // Tabs e exibição dos campos
+        const tabs = document.getElementById('tabs');
+        const tabNota = document.getElementById('tab-nota');
+        const tabBoleto = document.getElementById('tab-boleto');
+        const contentNota = document.getElementById('content-nota');
+        const contentBoleto = document.getElementById('content-boleto');
+        const submitBtn = document.getElementById('submitBtn');
+
+        function updateTabs() {
+            const nota = notaInput.files.length > 0;
+            const boleto = boletoInput.files.length > 0;
+
+            // Torna campos do boleto obrigatórios só se houver arquivo de boleto
+            document.querySelectorAll('#content-boleto [name]').forEach(input => {
+                if (boleto) {
+                    input.setAttribute('required', '');
+                } else {
+                    input.removeAttribute('required');
+                }
+            });
+
+            // Torna campos da nota obrigatórios só se houver arquivo de nota
+            document.querySelectorAll('#content-nota [name]').forEach(input => {
+                if (nota) {
+                    input.setAttribute('required', '');
+                } else {
+                    input.removeAttribute('required');
+                }
+            });
+
+            // Exibe abas se ambos arquivos, senão só a aba correspondente
+            if (nota && boleto) {
+                tabs.style.display = '';
+                contentNota.classList.add('active');
+                contentBoleto.classList.remove('active');
+                document.getElementById('pdfNotaArea').style.display = '';
+                document.getElementById('pdfBoletoArea').style.display = 'none';
+            } else if (nota) {
+                tabs.style.display = 'none';
+                contentNota.classList.add('active');
+                contentBoleto.classList.remove('active');
+                document.getElementById('pdfNotaArea').style.display = '';
+                document.getElementById('pdfBoletoArea').style.display = 'none';
+            } else if (boleto) {
+                tabs.style.display = 'none';
+                contentNota.classList.remove('active');
+                contentBoleto.classList.add('active');
+                document.getElementById('pdfNotaArea').style.display = 'none';
+                document.getElementById('pdfBoletoArea').style.display = '';
+            } else {
+                tabs.style.display = 'none';
+                contentNota.classList.remove('active');
+                contentBoleto.classList.remove('active');
+                document.getElementById('pdfNotaArea').style.display = 'none';
+                document.getElementById('pdfBoletoArea').style.display = 'none';
+            }
+        }
+
+        function showTab(tab) {
+            if (tab === 'nota') {
+                tabNota.classList.add('active');
+                tabBoleto.classList.remove('active');
+                contentNota.classList.add('active');
+                contentBoleto.classList.remove('active');
+                document.getElementById('pdfNotaArea').style.display = '';
+                document.getElementById('pdfBoletoArea').style.display = 'none';
+            } else {
+                tabNota.classList.remove('active');
+                tabBoleto.classList.add('active');
+                contentNota.classList.remove('active');
+                contentBoleto.classList.add('active');
+                document.getElementById('pdfNotaArea').style.display = 'none';
+                document.getElementById('pdfBoletoArea').style.display = '';
+            }
+        }
+
+        tabNota.addEventListener('click', () => showTab('nota'));
+        tabBoleto.addEventListener('click', () => showTab('boleto'));
+
+        // Habilita o botão enviar apenas se todos obrigatórios visíveis estiverem preenchidos
+        function validateForm() {
+            let valid = true;
+            // Verifica campos obrigatórios visíveis
+            document.querySelectorAll('.tab-content.active [required]').forEach(input => {
+                if (!input.value) valid = false;
+            });
+            // Se ambos arquivos, verifica ambos os conjuntos de campos
+            if (notaInput.files.length && boletoInput.files.length) {
+                document.querySelectorAll('#content-nota [required], #content-boleto [required]').forEach(input => {
+                    if (!input.value) valid = false;
+                });
+            }
+            // Pelo menos um arquivo deve estar selecionado
+            if (!notaInput.files.length && !boletoInput.files.length) valid = false;
+            submitBtn.disabled = !valid;
+        }
+
+        // Validação ao digitar
+        document.querySelectorAll('input, select').forEach(el => {
+            el.addEventListener('input', validateForm);
+            el.addEventListener('change', validateForm);
+        });
+
+        // Inicialização
+        updateTabs();
+        validateForm();
+
+        document.getElementById('uploadForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            const formData = new FormData(this);
+            const res = await fetch('/upload', { method: 'POST', body: formData });
+            const data = await res.json();
+            if (data.success) {
+                alert('Upload realizado com sucesso!');
+                window.location.reload();
+            } else {
+                alert('Erro ao enviar: ' + (data.error || 'Erro desconhecido'));
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
